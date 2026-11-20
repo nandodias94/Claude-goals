@@ -35,15 +35,25 @@ def inspect(goal):
     live = goal.fixtures.live()["data"]
     send(f"INSPECT: {len(live)} jogos ao vivo")
     if live:
-        # escolhe o jogo mais avançado para as estatísticas terem dados
-        m = max(live, key=lambda x: x.get("matchElapsed") or 0)
-        send(f"Estatísticas de {name(m, 'homeTeam')} - {name(m, 'awayTeam')} "
-             f"({m.get('matchElapsed')}')")
-        try:
-            stats = goal.fixtures.statistics(m["id"])
-            send(json.dumps(stats, ensure_ascii=False, indent=1))
-        except Exception as e:
-            send(f"Erro nas estatísticas: {e}")
+        # testa até 15 jogos e diz em quais há estatísticas
+        com, sem, primeiro = [], [], None
+        for m in live[:15]:
+            nome = (f"{name(m, 'homeTeam')} - {name(m, 'awayTeam')} "
+                    f"[{m.get('leagueName')}]")
+            try:
+                s = goal.fixtures.statistics(m["id"])
+                if (s.get("data") or {}).get("hasStatistics"):
+                    com.append(nome)
+                    primeiro = primeiro or (nome, s)
+                else:
+                    sem.append(nome)
+            except Exception as e:
+                sem.append(f"{nome} (erro: {e})")
+        send(f"COM estatísticas ({len(com)}):\n" + "\n".join(com))
+        send(f"SEM estatísticas ({len(sem)}):\n" + "\n".join(sem))
+        if primeiro:
+            send(f"Exemplo: {primeiro[0]}")
+            send(json.dumps(primeiro[1], ensure_ascii=False, indent=1))
 
 
 def watch(goal):
