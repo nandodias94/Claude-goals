@@ -1,0 +1,28 @@
+name: golos-bot
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "inspect ou watch"
+        default: "inspect"
+concurrency:
+  group: golos
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install goal-api requests
+      - run: python bot.py
+        env:
+          MODE: ${{ github.event.inputs.mode || 'watch' }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GOAL_API_KEY: ${{ secrets.GOAL_API_KEY }}
