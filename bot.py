@@ -146,7 +146,7 @@ def build_message(m, st=None, hits=0, heat_pts=0, why=None):
     h, a = score(m, "homeTeamScore"), score(m, "awayTeamScore")
     total = h + a
     lines = [
-        "⚽ GOLO À VISTA — SINAL DE GOLO",
+        "⚽ CLAUDE BOT — SINAL DE GOLO",
         "",
         f"🏆 {m.get('leagueName', '?')}",
         f"🏟 {name(m, 'homeTeam')} - {name(m, 'awayTeam')}",
@@ -214,9 +214,6 @@ def watch(goal):
                 el = m.get("matchElapsed") or 0
                 h, a = score(m, "homeTeamScore"), score(m, "awayTeamScore")
                 total = h + a
-                if fid in goals_seen and total > goals_seen[fid]:
-                    send(f"⚽ GOLO! {name(m, 'homeTeam')} {h}-{a} "
-                         f"{name(m, 'awayTeam')} ({el}') [{m.get('leagueName')}]")
                 goals_seen[fid] = total
 
                 if not (WINDOW[0] <= el <= WINDOW[1]):
